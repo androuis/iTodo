@@ -7,14 +7,8 @@ import android.os.IBinder;
 import com.google.android.gms.iid.InstanceIDListenerService;
 
 public class TodoInstanceIDListenerService extends InstanceIDListenerService{
-    public TodoInstanceIDListenerService() {
-    }
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
+    public TodoInstanceIDListenerService() {}
 
     /**
      * Called if InstanceID token is updated. This may occur if the security of

@@ -5,5 +5,4 @@
 */captures
 *.iml
 *gradlew*
-gradle\*
-.gradle/*
+*.gradle/*

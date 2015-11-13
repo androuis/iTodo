@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">iTodo</string>
+    <string name="gcm_sender_id">408292636937</string>
     <string name="action_settings">Settings</string>
+
+    <!--Add task fragment-->
+    <string name="add_task_hint">Insert task</string>
 </resources>

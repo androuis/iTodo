@@ -11,6 +11,7 @@ import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.response.CollectionResponse;
 
+import java.net.URLDecoder;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -48,6 +49,7 @@ public class RegistrationEndpoint {
      */
     @ApiMethod(name = "register")
     public void registerDevice(@Named("regId") String regId) {
+        regId = URLDecoder.decode(regId);
         if (findRecord(regId) != null) {
             log.info("Device " + regId + " already registered, skipping register");
             return;
@@ -64,6 +66,7 @@ public class RegistrationEndpoint {
      */
     @ApiMethod(name = "unregister")
     public void unregisterDevice(@Named("regId") String regId) {
+        regId = URLDecoder.decode(regId);
         RegistrationRecord record = findRecord(regId);
         if (record == null) {
             log.info("Device " + regId + " not registered, skipping unregister");
@@ -78,7 +81,7 @@ public class RegistrationEndpoint {
      * @param count The number of devices to list
      * @return a list of Google Cloud Messaging registration Ids
      */
-    @ApiMethod(name = "listDevices")
+    @ApiMethod(name = "list")
     public CollectionResponse<RegistrationRecord> listDevices(@Named("count") int count) {
         List<RegistrationRecord> records = ofy().load().type(RegistrationRecord.class).limit(count).list();
         return CollectionResponse.<RegistrationRecord>builder().setItems(records).build();
