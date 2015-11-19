@@ -5,4 +5,9 @@
 
     <!--Add task fragment-->
     <string name="add_task_hint">Insert task</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title">Title:</string>
+    <string name="title_hint">Insert task\'s title here</string>
 </resources>

@@ -11,11 +11,6 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
-        multiDexEnabled true
-    }
-
-    dexOptions {
-        javaMaxHeapSize "4g"
     }
 
     buildTypes {
@@ -33,6 +28,7 @@ dependencies {
     compile project(path: ':backend', configuration: 'android-endpoints')
     compile 'com.android.support:appcompat-v7:23.0.1'
     compile 'com.android.support:design:23.0.1'
-    compile 'com.google.android.gms:play-services:8.1.0'
-    compile 'com.android.support:multidex:1.0.1'
+    compile 'com.android.support:recyclerview-v7:23.0.1'
+    compile 'com.google.android.gms:play-services-gcm:8.3.0'
+    compile 'io.realm:realm-android:0.84.2'
 }

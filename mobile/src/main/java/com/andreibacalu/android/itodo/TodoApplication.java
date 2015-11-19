@@ -13,6 +13,9 @@ import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 
 import java.io.IOException;
 
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+
 /**
  * Created by abacalu on 06-11-15.
  */
@@ -23,6 +26,8 @@ public class TodoApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(this).build();
+        Realm.setDefaultConfiguration(realmConfiguration);
         instance = this;
         //registerGcm();
     }

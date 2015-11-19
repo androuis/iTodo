@@ -1,10 +1,10 @@
 package com.andreibacalu.android.itodo.activities;
 
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -13,25 +13,28 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.andreibacalu.android.itodo.R;
+import com.andreibacalu.android.itodo.endpoints.CreateAppEngineEndpoints;
 import com.andreibacalu.android.itodo.gcm.GcmRegistrationThread;
 import com.andreibacalu.android.itodo.gcm.RegistrationIntentService;
-import com.andreibacalu.android.itodo.list.AddTaskFragment;
+import com.andreibacalu.android.itodo.task.AddTaskFragment;
+import com.andreibacalu.android.itodo.task.ViewTaskFragment;
+import com.andreibacalu.android.itodo.user.User;
 import com.example.abacalu.itodo.backend.messaging.Messaging;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.extensions.android.json.AndroidJsonFactory;
-import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
-import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.Date;
+
+import io.realm.Realm;
+import todolist.TodoList;
 
 public class TodosActivity extends AppCompatActivity {
 
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private static final String TAG_LOG = TodosActivity.class.getSimpleName();
-    private GoogleCloudMessaging gcm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,16 +43,33 @@ public class TodosActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        if (savedInstanceState == null) {
+            // Do first time initialization -- add initial fragment.
+            Fragment newFragment = ViewTaskFragment.newInstance();
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            ft.add(R.id.content, newFragment).commit();
+        }
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 /*Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();*/
-                getFragmentManager().beginTransaction().add(R.id.content, AddTaskFragment.newInstance()).commit();
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.content, AddTaskFragment.newInstance())
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                        .addToBackStack(AddTaskFragment.BACKSTACK_NAME)
+                .commit();
             }
         });
+    }
 
+    @Override
+    public void onBackPressed() {
+        if (!getFragmentManager().popBackStackImmediate()) {
+            finish();
+        }
     }
 
     @Override
@@ -103,16 +123,10 @@ public class TodosActivity extends AppCompatActivity {
     }
 
     private void sendUsingEndpoint() {
-        Messaging messaging = new Messaging.Builder(AndroidHttp.newCompatibleTransport(), new AndroidJsonFactory(), null)
-                .setRootUrl("http://172.16.100.18:8080/_ah/api")
-                .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
-                    @Override
-                    public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
-                        abstractGoogleClientRequest.setDisableGZipContent(true);
-                    }
-                }).build();
+        Messaging messaging = CreateAppEngineEndpoints.createMessagingEndpoint();
+        String message = "test using endpoint " + new Date().toString();
         try {
-            messaging.messagingEndpoint().sendMessage("test " + System.currentTimeMillis()).execute();
+            messaging.messagingEndpoint().sendMessage(URLEncoder.encode(message)).execute();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -121,8 +135,8 @@ public class TodosActivity extends AppCompatActivity {
     private void sendUsingGcm() {
         GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(getApplicationContext());
         Bundle data = new Bundle();
-        data.putString("message", "test");
-        data.putString("action", "com.antoinecampbell.gcmdemo.ECHO");
+        String message = "test usging gcm " + new Date().toString();
+        data.putString("message", URLEncoder.encode(message));
         try {
             gcm.send("408292636937@gcm.googleapis.com", String.valueOf(System.currentTimeMillis()), data);
         } catch (IOException e) {

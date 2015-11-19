@@ -14,9 +14,8 @@ import java.io.IOException;
  */
 public class CreateAppEngineEndpoints {
 
-    public static final String SERVER_ADDRESS = "172.16.116.53";
-    public static final String SERVER_PORT = "8080";
-    public static final String SERVER_URL = "http://" + SERVER_ADDRESS + ":" + SERVER_PORT + "/_ah/api";
+    public static final String SERVER_ADDRESS = "savvy-ratio-112109.appspot.com";
+    public static final String SERVER_URL = "https://" + SERVER_ADDRESS + "/_ah/api";
 
     public static Registration createRegistrationEndpoint() {
         return new Registration.Builder(AndroidHttp.newCompatibleTransport(), new AndroidJsonFactory(), null)

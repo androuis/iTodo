@@ -14,6 +14,7 @@ import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiNamespace;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -54,6 +55,7 @@ public class MessagingEndpoint {
      * @param message The message to send
      */
     public void sendMessage(@Named("message") String message) throws IOException {
+        message = URLDecoder.decode(message);
         if (message == null || message.trim().length() == 0) {
             log.warning("Not sending message because it is empty");
             return;
@@ -88,4 +90,5 @@ public class MessagingEndpoint {
             }
         }
     }
+
 }
