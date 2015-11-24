@@ -1,49 +1,46 @@
 package com.andreibacalu.android.itodo.task;
 
 
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
-import android.preference.PreferenceManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.andreibacalu.android.itodo.R;
-import com.andreibacalu.android.itodo.activities.TodosActivity;
 import com.andreibacalu.android.itodo.endpoints.CreateAppEngineEndpoints;
 import com.andreibacalu.android.itodo.task.adapters.AddTaskAdapter;
+import com.andreibacalu.android.itodo.todolist.item.Item;
 import com.andreibacalu.android.itodo.user.User;
+import com.andreibacalu.android.itodo.utils.ModelUtils;
 import com.example.abacalu.itodo.backend.messaging.Messaging;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import io.realm.Realm;
 import io.realm.RealmList;
-import io.realm.RealmResults;
-import todolist.TodoList;
+
+import com.andreibacalu.android.itodo.todolist.TodoList;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link AddTaskFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class AddTaskFragment extends Fragment {
+public class AddTaskFragment extends Fragment implements OnBackPressedListener {
 
     public static final String BACKSTACK_NAME = AddTaskFragment.class.getSimpleName();
 
     private EditText titleTask;
     private RecyclerView recyclerView;
+    private AddTaskAdapter recyclerViewAdapter;
     private Realm realm;
 
     /**
@@ -74,7 +71,7 @@ public class AddTaskFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         setupViews(view);
-        setupViewListeners();
+        setupViewListeners(view);
     }
 
     @Override
@@ -84,39 +81,21 @@ public class AddTaskFragment extends Fragment {
 
     @Override
     public void onDestroy() {
-        realm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                TodoList todoList = new TodoList();
-                todoList.setId(realm.allObjects(TodoList.class).size() + 1);
-                todoList.setName(titleTask.getText().toString());
-                todoList.setCreatedBy(User.ANONYMOUS);
-            }
-        }, new Realm.Transaction.Callback() {
-            @Override
-            public void onError(Exception e) {
-                super.onError(e);
-            }
-
-            @Override
-            public void onSuccess() {
-                super.onSuccess();
-            }
-        });
         realm.close();
         super.onDestroy();
     }
 
     private void setupViews(View rootView) {
         titleTask = (EditText) rootView.findViewById(R.id.add_title_task);
+        recyclerViewAdapter = new AddTaskAdapter();
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(new AddTaskAdapter());
+        recyclerView.setAdapter(recyclerViewAdapter);
     }
 
-    private void setupViewListeners() {
+    private void setupViewListeners(View view) {
 
     }
 
@@ -148,5 +127,42 @@ public class AddTaskFragment extends Fragment {
                 progressDialog.dismiss();
             }
         }.execute(message);
+    }
+
+    @Override
+    public void onBackPressed() {
+        final ProgressDialog progressDialog = new ProgressDialog(getActivity());
+        progressDialog.show();
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                TodoList todoList = realm.createObject(TodoList.class);
+                todoList.setId(realm.allObjects(TodoList.class).size() + 1);
+                todoList.setName(titleTask.getText().toString());
+                Set<String> items = recyclerViewAdapter.getTasks();
+                RealmList<Item> realmList = new RealmList<>();
+                for (String itemString: items) {
+                    Item item = realm.createObject(Item.class);
+                    item.setCreatedBy(ModelUtils.getMyUser(realm));
+                    item.setDescription(itemString);
+                    realmList.add(item);
+                }
+                todoList.setItems(realmList);
+                todoList.setCreatedBy(ModelUtils.getMyUser(realm));
+            }
+        }, new Realm.Transaction.Callback() {
+            @Override
+            public void onError(Exception e) {
+                super.onError(e);
+                e.printStackTrace();
+                progressDialog.dismiss();
+            }
+
+            @Override
+            public void onSuccess() {
+                progressDialog.dismiss();
+                getFragmentManager().popBackStack();
+            }
+        });
     }
 }

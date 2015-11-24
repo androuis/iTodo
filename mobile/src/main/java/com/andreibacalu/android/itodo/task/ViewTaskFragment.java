@@ -3,15 +3,23 @@ package com.andreibacalu.android.itodo.task;
 
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.andreibacalu.android.itodo.R;
+import com.andreibacalu.android.itodo.task.adapters.ViewTaskAdapter;
+import com.andreibacalu.android.itodo.task.adapters.ViewTaskRealmAdapter;
+import com.andreibacalu.android.itodo.todolist.TodoList;
+import com.andreibacalu.android.itodo.user.User;
 
 import io.realm.Realm;
-import todolist.TodoList;
+import io.realm.RealmResults;
+
+import com.andreibacalu.android.itodo.todolist.item.Item;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -21,6 +29,8 @@ import todolist.TodoList;
 public class ViewTaskFragment extends Fragment {
 
     private Realm realm;
+    private RecyclerView recyclerView;
+    private ViewTaskAdapter recyclerViewAdapter;
 
     /**
      * Use this factory method to create a new instance of
@@ -48,9 +58,21 @@ public class ViewTaskFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(final View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ((TextView) view.findViewById(R.id.test)).append(" size: " + realm.allObjects(TodoList.class).size());
+        recyclerViewAdapter = new ViewTaskAdapter();
+        recyclerView = (RecyclerView) view.findViewById(R.id.todos_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setAdapter(recyclerViewAdapter);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        RealmResults<TodoList> realmResults = realm.where(TodoList.class).findAll();
+        ViewTaskRealmAdapter viewTaskRealmAdapter = new ViewTaskRealmAdapter(getActivity().getApplicationContext(), realmResults, true);
+        recyclerViewAdapter.setRealmModelAdapter(viewTaskRealmAdapter);
+        recyclerViewAdapter.notifyDataSetChanged();
     }
 
     @Override

@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 
 import com.andreibacalu.android.itodo.gcm.GcmRegistrationThread;
+import com.andreibacalu.android.itodo.user.User;
 import com.example.abacalu.itodo.backend.registration.Registration;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -28,6 +29,11 @@ public class TodoApplication extends Application {
         super.onCreate();
         RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(this).build();
         Realm.setDefaultConfiguration(realmConfiguration);
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        realm.copyToRealmOrUpdate(User.ANONYMOUS);
+        realm.commitTransaction();
+        realm.close();
         instance = this;
         //registerGcm();
     }

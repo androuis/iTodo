@@ -1,29 +1,21 @@
-package todolist.item;
+package com.andreibacalu.android.itodo.todolist.item;
 
 import com.andreibacalu.android.itodo.user.User;
 
 import io.realm.RealmObject;
+import io.realm.annotations.Required;
 
 public class Item extends RealmObject {
-    private long id;
+    @Required
     private String description;
     private User createdBy;
 
     public Item() {
     }
 
-    public Item(long id, String description, User createdBy) {
-        this.id = id;
+    public Item(String description, User createdBy) {
         this.description = description;
         this.createdBy = createdBy;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public String getDescription() {

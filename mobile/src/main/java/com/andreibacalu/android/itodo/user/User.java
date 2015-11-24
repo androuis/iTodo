@@ -1,13 +1,15 @@
 package com.andreibacalu.android.itodo.user;
 
 import android.location.Location;
+import android.text.TextUtils;
 
+import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.Required;
-import todolist.TodoList;
+import com.andreibacalu.android.itodo.todolist.TodoList;
 
 public class User extends RealmObject {
 

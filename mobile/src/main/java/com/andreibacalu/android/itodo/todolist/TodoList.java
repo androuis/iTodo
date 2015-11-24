@@ -1,4 +1,4 @@
-package todolist;
+package com.andreibacalu.android.itodo.todolist;
 
 import com.andreibacalu.android.itodo.user.User;
 
@@ -6,7 +6,7 @@ import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.Required;
-import todolist.item.Item;
+import com.andreibacalu.android.itodo.todolist.item.Item;
 
 public class TodoList extends RealmObject {
     @PrimaryKey

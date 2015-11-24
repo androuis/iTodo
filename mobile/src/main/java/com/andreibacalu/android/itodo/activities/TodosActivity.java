@@ -1,6 +1,7 @@
 package com.andreibacalu.android.itodo.activities;
 
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,8 +18,9 @@ import com.andreibacalu.android.itodo.endpoints.CreateAppEngineEndpoints;
 import com.andreibacalu.android.itodo.gcm.GcmRegistrationThread;
 import com.andreibacalu.android.itodo.gcm.RegistrationIntentService;
 import com.andreibacalu.android.itodo.task.AddTaskFragment;
+import com.andreibacalu.android.itodo.task.OnBackPressedListener;
 import com.andreibacalu.android.itodo.task.ViewTaskFragment;
-import com.andreibacalu.android.itodo.user.User;
+import com.andreibacalu.android.itodo.utils.FragmentUtils;
 import com.example.abacalu.itodo.backend.messaging.Messaging;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -27,9 +29,6 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Date;
-
-import io.realm.Realm;
-import todolist.TodoList;
 
 public class TodosActivity extends AppCompatActivity {
 
@@ -57,7 +56,7 @@ public class TodosActivity extends AppCompatActivity {
                 /*Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();*/
                 getFragmentManager().beginTransaction()
-                        .replace(R.id.content, AddTaskFragment.newInstance())
+                        .replace(R.id.content, AddTaskFragment.newInstance(), AddTaskFragment.BACKSTACK_NAME)
                         .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                         .addToBackStack(AddTaskFragment.BACKSTACK_NAME)
                 .commit();
@@ -67,7 +66,10 @@ public class TodosActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (!getFragmentManager().popBackStackImmediate()) {
+        Fragment fragment = FragmentUtils.getCurrentFragment(this);
+        if (fragment instanceof OnBackPressedListener) {
+            ((OnBackPressedListener) fragment).onBackPressed();
+        } else if (!getFragmentManager().popBackStackImmediate()) {
             finish();
         }
     }
